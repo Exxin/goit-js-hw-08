@@ -1,6 +1,3 @@
-// script.js
-const galleryContainer = document.querySelector('.gallery');
-
 const images = [
   {
     preview:
@@ -68,46 +65,46 @@ const images = [
 ];
 
 function createGalleryItem({ preview, original, description }) {
-  const galleryItem = document.createElement('li');
-  galleryItem.classList.add('gallery-item');
-
-  const link = document.createElement('a');
-  link.classList.add('gallery-link');
-  link.href = original;
-
-  const image = document.createElement('img');
-  image.classList.add('gallery-image');
-  image.src = preview;
-  image.alt = description;
-  image.setAttribute('data-source', original);
-
-  link.appendChild(image);
-  galleryItem.appendChild(link);
-
-  return galleryItem;
+  return `
+    <li class="gallery-item">
+      <a class="gallery-link" href="${original}">
+        <img class="gallery-image" src="${preview}" data-source="${original}" alt="${description}">
+      </a>
+    </li>
+  `;
 }
 
-function openModal(src) {
+function renderGallery(images) {
+  const galleryContainer = document.querySelector('.gallery');
+  const galleryItems = images.map(createGalleryItem);
+  galleryContainer.innerHTML = galleryItems.join('');
+}
+
+function openModal(event) {
+  event.preventDefault();
+
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  }
+
+  const largeImageURL = event.target.dataset.source;
+
   const instance = basicLightbox.create(`
-    <img width="800" height="600" src="${src}">
+    <img src="${largeImageURL}" width="800" height="600">
   `);
 
   instance.show();
+  document.addEventListener('keydown', closeModal);
+
+  function closeModal(event) {
+    if (event.key === 'Escape') {
+      instance.close();
+      document.removeEventListener('keydown', closeModal);
+    }
+  }
 }
 
-function handleGalleryClick(event) {
-  event.preventDefault();
+const galleryContainer = document.querySelector('.gallery');
+galleryContainer.addEventListener('click', openModal);
 
-  const target = event.target;
-  if (target.nodeName !== 'IMG') return;
-
-  openModal(target.dataset.source);
-}
-
-function populateGallery(images) {
-  const galleryItems = images.map(createGalleryItem);
-  galleryContainer.append(...galleryItems);
-}
-
-populateGallery(images);
-galleryContainer.addEventListener('click', handleGalleryClick);
+renderGallery(images);
