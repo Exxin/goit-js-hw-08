@@ -91,16 +91,27 @@ function openModal(event) {
 
   const instance = basicLightbox.create(`
     <img src="${largeImageURL}" width="800" height="600">
-  `);
+  `, {
+    onShow: (instance) => {
+      document.addEventListener('keydown', closeModal);
 
-  instance.show();
-  document.addEventListener('keydown', closeModal);
-
-  function closeModal(event) {
-    if (event.key === 'Escape') {
-      instance.close();
+      function closeModal(event) {
+        if (event.key === 'Escape') {
+          instance.close();
+        }
+      }
+    },
+    onClose: (instance) => {
       document.removeEventListener('keydown', closeModal);
     }
+  });
+
+  instance.show();
+}
+
+function closeModal(event) {
+  if (event.key === 'Escape') {
+    basicLightbox.close();
   }
 }
 
