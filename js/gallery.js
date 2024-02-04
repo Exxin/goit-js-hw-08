@@ -80,6 +80,13 @@ function renderGallery(images) {
   galleryContainer.innerHTML = galleryItems.join('');
 }
 
+function closeModal(event, instance) {
+  if (event.key === 'Escape') {
+    instance.close();
+    document.removeEventListener('keydown', event => closeModal(event, instance));
+  }
+}
+
 function openModal(event) {
   event.preventDefault();
 
@@ -93,26 +100,14 @@ function openModal(event) {
     <img src="${largeImageURL}" width="800" height="600">
   `, {
     onShow: (instance) => {
-      document.addEventListener('keydown', closeModal);
-
-      function closeModal(event) {
-        if (event.key === 'Escape') {
-          instance.close();
-        }
-      }
+      document.addEventListener('keydown', event => closeModal(event, instance));
     },
     onClose: (instance) => {
-      document.removeEventListener('keydown', closeModal);
+      document.removeEventListener('keydown', event => closeModal(event, instance));
     }
   });
 
   instance.show();
-}
-
-function closeModal(event) {
-  if (event.key === 'Escape') {
-    basicLightbox.close();
-  }
 }
 
 const galleryContainer = document.querySelector('.gallery');
